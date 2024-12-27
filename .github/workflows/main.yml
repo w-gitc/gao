@@ -1,0 +1,26 @@
+name: Sync from Upstream
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 每天早上6点执行
+  workflow_dispatch:  # 也支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取完整的历史记录，确保同步不受影响
+      - name: Add Upstream
+        run: |
+          git remote add upstream https://github.com/gaotianliuyun/gao || true
+          git fetch upstream
+      - name: Merge Upstream
+        run: |
+          git checkout master
+          git merge upstream/master --allow-unrelated-histories || true
+      - name: Push Changes
+        run: |
+          git push origin master || true
